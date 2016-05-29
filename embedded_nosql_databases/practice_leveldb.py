@@ -16,7 +16,7 @@ class Leveldb(object):
             # db.Put("1", "111")
 
             print (db.Get("1"))
-        except Exception, e:
+        except Exception as e:
             logger.warning(e)
         finally:
             pass

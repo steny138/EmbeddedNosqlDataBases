@@ -4,34 +4,38 @@ import logging.config
 
 import json
 from unqlite import UnQLite
-from grs import Stock,TWSENo
+from grs import Stock, TWSENo
 import datetime
-logging.config.fileConfig("../logging.conf", disable_existing_loggers=False, defaults={'logfilename': datetime.datetime.now().strftime("%Y%m%d")})
+logging.config.fileConfig("../logging.conf", disable_existing_loggers=False,
+                          defaults={'logfilename': datetime.datetime.now().strftime("%Y%m%d")})
 logger = logging.getLogger("unqlite")
 
 class Unqlite(object):
     def fetchdata(self):
         try:
             # stock = Stock('2618', 12)
-            twse_no = TWSENo()
-            fetch_stocks = self.read_prepare_stocks()
+            # twse_no = TWSENo()
+            fetch_stocks = self.__read_prepare_stocks()
             process_count = 0
-            
+
             for st in fetch_stocks["stocks"]:
                 dbname = 'stock_records_' + st["stockno"]
                 records = self.db.collection(dbname)
                 if not records.exists():
                     logger.info("records collection created.")
                     records.create()
+                    
+                logger.info("stockno: %s" % st["stockno"])
+                
+                datas = Stock(st["stockno"], mons=24).raw
 
-                datas = Stock(st["stockno"]).raw
                 for data in datas:
-                    stock_data = StockData(st["stockno"],data)
+                    stock_data = StockData(st["stockno"], data)
                     if not self.__hasRaw(dbname, "date", stock_data.date):
                         records.store(stock_data.__dict__)
                         process_count = process_count + 1
 
-            if records.exists() : 
+            if records.exists():
                 logger.info("success %d " % process_count)
             else:
                 print("fail to fetch data")
@@ -39,7 +43,24 @@ class Unqlite(object):
             logger.warning(e)
         finally:
             pass
-    def read_prepare_stocks(self):
+
+    def readdata(self):
+        fetch_stocks = self.__read_prepare_stocks()
+        for st in fetch_stocks["stocks"]:
+            dbname = 'stock_records_' + st["stockno"]
+            records = self.db.collection(dbname)
+            rawData = Stock(st["stockno"])
+            # logger.info("%s : " % st["stockno"])
+            # print(rawData.MAV(10)[1])
+            if records.exists():
+                # print(rawData.MAV(10))
+                logger.info("%s : " % st["stockno"])
+                for record in records.all():
+                    logger.info(record)
+            else:
+                print("fail to read data")
+
+    def __read_prepare_stocks(self):
         with open("choose_stocks.json") as data_file:
             data = json.load(data_file)
         return data
@@ -53,15 +74,16 @@ class Unqlite(object):
             :rtype: boolean
         """
         return len(self.db.collection(dbname).filter(lambda obj: obj[key] == value)) > 0
-        
+
     def __init__(self, db):
         super(Unqlite, self).__init__()
-        self.db = db # UnQLite('./db/ubqlite.db')
+        self.db = db  # UnQLite('./db/ubqlite.db')
         if self.db is None:
             raise Exception("there is no unqlite database to load.")
 
 class StockData(object):
     """docstring for StockData"""
+
     def __init__(self, no, data):
         super(StockData, self).__init__()
         """ fetch data row 
@@ -81,13 +103,10 @@ class StockData(object):
         self.deal_price = data[2]
         self.open_price = data[3]
         self.high_price = data[4]
-        self.low_price = data[5]
+        self.low_price = data[5] 
         self.last_price = data[6]
         self.deviation = data[7]
         self.deal_count = data[8]
-        
 
 if __name__ == "__main__":
     Unqlite(UnQLite('./db/ubqlite.db')).fetchdata()
-
-

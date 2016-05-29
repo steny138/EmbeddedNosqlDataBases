@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import thsr_moment_order
+import embedded_nosql_databases
 from setuptools import setup, find_packages
 
 long_description = open('./README.md', 'r').read()
@@ -13,7 +13,7 @@ setup(name='embedded_nosql_databases',
       long_description=long_description,
       author='YUCHEN LIU',
       author_email='steny138@gmail.com',
-      url='https://github.com/steny138/ThsrMomentOrder',
+      url='https://github.com/steny138/EmbeddedNosqlDataBases',
       packages=['embedded_nosql_databases'],
       package_data={'embedded_nosql_databases': ['*.csv']},
       include_package_data=True,
