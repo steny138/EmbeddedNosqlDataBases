@@ -60,3 +60,9 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# DB File
+embedded_nosql_databases/db/
+
+# Logs
+embedded_nosql_databases/logs/

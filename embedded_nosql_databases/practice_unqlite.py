@@ -28,7 +28,6 @@ class Unqlite(object):
                 logger.info("stockno: %s" % st["stockno"])
                 
                 datas = Stock(st["stockno"], mons=24).raw
-
                 for data in datas:
                     stock_data = StockData(st["stockno"], data)
                     if not self.__hasRaw(dbname, "date", stock_data.date):
@@ -109,4 +108,4 @@ class StockData(object):
         self.deal_count = data[8]
 
 if __name__ == "__main__":
-    Unqlite(UnQLite('./db/ubqlite.db')).fetchdata()
+    Unqlite(UnQLite('./db/unqlite.db')).fetchdata()
